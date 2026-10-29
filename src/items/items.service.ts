@@ -10,6 +10,13 @@ export const ITEM_NOT_FOUND = '찾는 용품이 없어요';
 const CATEGORIES = ['MOBILITY', 'SLEEP', 'FEEDING', 'PLAY'] as const;
 const CONDITIONS = ['GOOD', 'FAIR', 'NEEDS_REPAIR'] as const;
 const CODE_PATTERN = /^[A-Z]{3}-\d{3}$/;
+// 관리 번호 앞글자는 분류에 맞춥니다 (기획서 6장).
+const CODE_PREFIX: Record<(typeof CATEGORIES)[number], { prefix: string; label: string }> = {
+  MOBILITY: { prefix: 'MOV', label: '이동' },
+  SLEEP: { prefix: 'SLP', label: '수면' },
+  FEEDING: { prefix: 'FED', label: '수유·위생' },
+  PLAY: { prefix: 'PLY', label: '놀이·발달' },
+};
 
 type ItemWithRecords = Item & { rentals: Rental[]; sanitizations: Sanitization[] };
 
@@ -115,6 +122,10 @@ export class ItemsService {
 
     const category = oneOf(body.category, CATEGORIES);
     if (!category) errors.add('category', '분류를 골라 주세요.');
+    else if (!errors.has('code') && !code.startsWith(`${CODE_PREFIX[category].prefix}-`)) {
+      const { prefix, label } = CODE_PREFIX[category];
+      errors.add('code', `${label} 분류의 관리 번호는 ${prefix}-로 시작해 주세요. (예: ${prefix}-001)`);
+    }
 
     const ageMessage = '월령은 0부터 72 사이 숫자로 적어 주세요.';
     const minAgeMonths = intInRange(body.minAgeMonths, 0, 72);
