@@ -4,7 +4,8 @@
 API B1~B7, 입력 규칙, "지금 상태" 계산은 [기획서.md](./기획서.md) 6~8장을 따릅니다. 모든 데이터는 가상입니다.
 
 - 프론트엔드 저장소: [baby-rental-level1-frontend](https://github.com/jeojeobee-ai/baby-rental-level1-frontend)
-- 배포 주소: (배포 후 기입)
+- 배포 주소: https://baby-rental-api.onrender.com (상태 확인: [/health](https://baby-rental-api.onrender.com/health))
+- 화면 주소: https://baby-rental-level1-frontend.vercel.app
 
 ## API
 
