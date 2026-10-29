@@ -1,30 +1,16 @@
-# 햇빛구 육아용품 대여실 — 백엔드 (NestJS + PostgreSQL)
+# baby-rental-level1-backend
 
-API B1~B7과 입력 규칙, "지금 상태" 계산은 `기획서.md` 6~8장을 따릅니다. 모든 데이터는 가상입니다.
+햇빛구 육아용품 대여실 관리 웹앱의 **백엔드**(NestJS + PostgreSQL)입니다.
+API B1~B7, 입력 규칙, "지금 상태" 계산은 [기획서.md](./기획서.md) 6~8장을 따릅니다. 모든 데이터는 가상입니다.
 
-## 내 컴퓨터에서 실행
-
-```bash
-npm install
-cp .env.example .env          # DATABASE_URL에 DB 주소를 넣으세요
-npx prisma migrate deploy     # 테이블 3개 만들기
-npm run seed                  # 가상 데이터 넣기 (DB가 비어 있을 때만)
-npm run build && npm start    # http://localhost:4000
-```
-
-- `npm run seed -- --reset`은 기존 용품·대여·소독 기록을 **모두 지우고** 다시 넣습니다.
-- `.env`는 GitHub에 올라가지 않습니다.
-
-## Render 배포
-
-Render 대시보드에서 New → Blueprint로 이 저장소를 고르면 `render.yaml`대로 웹 서비스 `baby-rental-api`가 만들어집니다.
-DB는 새로 만들지 않고, 처음 적용할 때 기존 `baby-rental-db`의 **Internal Database URL**을 `DATABASE_URL`에 넣습니다.
+- 프론트엔드 저장소: [baby-rental-level1-frontend](https://github.com/jeojeobee-ai/baby-rental-level1-frontend)
+- 배포 주소: (배포 후 기입)
 
 ## API
 
 | 번호 | 요청 | 설명 |
 |---|---|---|
-| B1 | `GET /health` | DB 연결 확인 |
+| B1 | `GET /health` | DB 연결 확인 (`{"status":"ok","db":"connected"}`) |
 | B2 | `GET /items` | 용품 목록 + 지금 상태 |
 | B3 | `GET /items/:id` | 용품 상세 + 대여·소독 기록 |
 | B4 | `POST /items` | 용품 등록 |
@@ -33,3 +19,57 @@ DB는 새로 만들지 않고, 처음 적용할 때 기존 `baby-rental-db`의 *
 | B7 | `POST /items/:id/sanitizations` | 소독 기록 등록 |
 
 잘못된 입력은 400과 `{ "errors": { "칸이름": "안내 문구" } }`로 돌려줍니다.
+
+## 설치
+
+Node.js 22.9 이상과 PostgreSQL이 필요합니다.
+
+```bash
+npm install
+```
+
+## 실행 (내 컴퓨터)
+
+1. 환경변수 파일을 만들고 `DATABASE_URL`에 DB 주소를 넣습니다.
+
+   ```bash
+   cp .env.example .env
+   ```
+
+2. 테이블을 만들고 가상 데이터를 넣습니다. 가상 데이터는 DB가 비어 있을 때만 들어갑니다.
+
+   ```bash
+   npx prisma migrate deploy
+   npm run seed
+   ```
+
+3. 서버를 켭니다. 주소는 http://localhost:4000 입니다.
+
+   ```bash
+   npm run build && npm start
+   ```
+
+`npm run seed -- --reset`은 기존 용품·대여·소독 기록을 **모두 지우고** 다시 넣습니다.
+
+## 환경변수
+
+| 이름 | 뜻 |
+|---|---|
+| `DATABASE_URL` | PostgreSQL 주소 |
+| `PORT` | 서버 포트 (Render가 자동으로 넣음) |
+| `FRONTEND_ORIGIN` | 화면에서 API를 부를 수 있는 프론트엔드 주소 (쉼표로 여러 개) |
+
+`.env`는 GitHub에 올라가지 않습니다.
+
+## 배포 (Render)
+
+`render.yaml`(Blueprint)에 무료 웹 서비스 `baby-rental-api`(Oregon) 설정이 들어 있습니다.
+
+1. Render 대시보드에서 New → Blueprint로 이 저장소를 고릅니다.
+2. 변경 목록에 **새 Postgres가 없고** 웹 서비스 하나만 있는지 확인합니다. DB는 기존 `baby-rental-db`를 재사용합니다.
+3. 입력 칸에 값을 넣습니다.
+   - `DATABASE_URL`: `baby-rental-db`의 **Internal Database URL**
+   - `FRONTEND_ORIGIN`: Vercel 프론트엔드 주소
+4. 배포가 끝나면 `https://<서비스 주소>/health`가 `connected`인지 확인합니다.
+
+서버가 켜질 때마다 `prisma migrate deploy`가 먼저 실행되어 새 마이그레이션만 적용됩니다. 무료 웹 서비스는 15분 동안 요청이 없으면 잠들고, 다음 요청 때 1분쯤 걸려 깨어납니다.
