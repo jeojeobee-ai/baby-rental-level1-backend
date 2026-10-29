@@ -15,6 +15,11 @@ npm run build && npm start    # http://localhost:4000
 - `npm run seed -- --reset`은 기존 용품·대여·소독 기록을 **모두 지우고** 다시 넣습니다.
 - `.env`는 GitHub에 올라가지 않습니다.
 
+## Render 배포
+
+Render 대시보드에서 New → Blueprint로 이 저장소를 고르면 `render.yaml`대로 웹 서비스 `baby-rental-api`가 만들어집니다.
+DB는 새로 만들지 않고, 처음 적용할 때 기존 `baby-rental-db`의 **Internal Database URL**을 `DATABASE_URL`에 넣습니다.
+
 ## API
 
 | 번호 | 요청 | 설명 |
