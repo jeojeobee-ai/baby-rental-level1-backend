@@ -21,6 +21,17 @@ API B1~B7, 입력 규칙, "지금 상태" 계산은 [기획서.md](./기획서.m
 
 잘못된 입력은 400과 `{ "errors": { "칸이름": "안내 문구" } }`로 돌려줍니다.
 
+### 물품 제품 정보 (선택 입력)
+
+| 칸 (API / DB) | 뜻 | 규칙 |
+|---|---|---|
+| `brand` / `brand` | 브랜드 (가상) | 30자 이내 |
+| `modelName` / `model_name` | 모델명 (가상) | 40자 이내 |
+| `purchasedAt` / `purchased_at` | 구매일 | `YYYY-MM-DD`, 미래 날짜 안 됨 |
+| `imageUrl` / `image_url` | 대표 사진 경로 | `src/items/item-images.ts`의 데모 그림 15개 중 하나 (예: `/items/stroller.svg`) |
+
+마이그레이션 `20261029100000_item_product_info`가 이 칸들을 빈 값 허용으로 추가하고, 기존 가상 물품 24개에 값을 채웁니다. 기존 기록은 지우지 않습니다.
+
 ## 설치
 
 Node.js 22.9 이상과 PostgreSQL이 필요합니다.

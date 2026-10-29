@@ -44,6 +44,35 @@ const ITEMS: ItemSeed[] = [
   { code: 'PLY-006', name: '러닝홈', category: 'PLAY', ages: [6, 36], final: 'AWAITING' },
 ];
 
+// 가상 제품 정보: [브랜드, 모델명, 구매일, 대표 사진]. 실제 제품·브랜드가 아닙니다.
+// 마이그레이션 20261029100000_item_product_info 가 기존 DB에 넣는 값과 같습니다.
+const PRODUCTS: Record<string, [string, string, string, string]> = {
+  'MOV-001': ['햇빛베이비', '산책 S2 (HB-S210)', '2025-03-12', 'stroller'],
+  'MOV-002': ['구름나래', '클라우드 디럭스 (CN-D500)', '2024-11-05', 'stroller'],
+  'MOV-003': ['토닥랩', '포근 0+ (TD-C010)', '2025-06-20', 'car-seat'],
+  'MOV-004': ['토닥랩', '든든 주니어 (TD-C300)', '2024-09-02', 'car-seat'],
+  'MOV-005': ['솔방울키즈', '안아줘 캐리어 (SB-K100)', '2025-08-18', 'carrier'],
+  'MOV-006': ['솔방울키즈', '힙업 시트 (SB-H200)', '2024-05-27', 'carrier'],
+  'SLP-001': ['햇빛베이비', '나무숲 원목침대 (HB-B300)', '2024-10-14', 'crib'],
+  'SLP-002': ['구름나래', '폴딩 미니베드 (CN-B120)', '2025-02-03', 'crib'],
+  'SLP-003': ['구름나래', '말랑 범퍼베드 (CN-M200)', '2025-04-09', 'mattress'],
+  'SLP-004': ['토닥랩', '살랑 흔들침대 (TD-R050)', '2024-12-16', 'crib'],
+  'SLP-005': ['햇빛베이비', '나들이 바시넷 (HB-B110)', '2025-07-07', 'crib'],
+  'SLP-006': ['솔방울키즈', '꿀잠 매트 (SB-M090)', '2026-09-30', 'mattress'],
+  'FED-001': ['햇빛베이비', '반짝 UV 소독기 (HB-U400)', '2025-01-22', 'sterilizer'],
+  'FED-002': ['솔방울키즈', '퐁당 욕조 (SB-T150)', '2024-08-11', 'bath'],
+  'FED-003': ['구름나래', '폴딩 욕조 (CN-T220)', '2025-05-30', 'bath'],
+  'FED-004': ['토닥랩', '따끈 분유포트 (TD-K070)', '2025-09-08', 'kettle'],
+  'FED-005': ['햇빛베이비', '냠냠 쿠커 (HB-F160)', '2025-10-21', 'food-maker'],
+  'FED-006': ['구름나래', '맘마 하이체어 (CN-H300)', '2024-06-25', 'high-chair'],
+  'PLY-001': ['솔방울키즈', '아장 보행기 (SB-W060)', '2025-03-28', 'walker'],
+  'PLY-002': ['토닥랩', '둥실 바운서 (TD-B080)', '2024-11-19', 'bouncer'],
+  'PLY-003': ['구름나래', '콩콩 점퍼 (CN-J140)', '2025-02-14', 'activity-center'],
+  'PLY-004': ['햇빛베이비', '반짝 플레이짐 (HB-P050)', '2024-07-30', 'play-gym'],
+  'PLY-005': ['솔방울키즈', '빙글 쏘서 (SB-S070)', '2025-06-05', 'activity-center'],
+  'PLY-006': ['토닥랩', '놀이집 러닝홈 (TD-L200)', '2024-12-02', 'play-house'],
+};
+
 const GUARDIANS = [
   '김하늘', '이서준', '박지우', '최민서', '정하윤', '강도윤', '조서연', '윤시우', '장지아', '임주원',
   '한예준', '오수아', '서은우', '신지호', '권하린', '황유준', '안채원', '송건우', '류다은', '홍지안',
@@ -159,6 +188,10 @@ async function main() {
             maxAgeMonths: seed.ages[1],
             condition,
             memo: seed.memo ?? null,
+            brand: PRODUCTS[seed.code][0],
+            modelName: PRODUCTS[seed.code][1],
+            purchasedAt: toDbDate(PRODUCTS[seed.code][2]),
+            imageUrl: `/items/${PRODUCTS[seed.code][3]}.svg`,
           },
         });
         const { rentals, sanitizations } = buildHistory(seed, index, today);

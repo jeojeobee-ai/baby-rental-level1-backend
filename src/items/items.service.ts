@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Item, Prisma, Rental, Sanitization } from '@prisma/client';
-import { fromDbDate } from '../common/dates';
+import { fromDbDate, isValidDate, toDbDate, todayInKorea } from '../common/dates';
 import { FieldErrors, asBody, intInRange, oneOf, optionalText, text } from '../common/validation';
 import { PrismaService } from '../prisma/prisma.service';
+import { ITEM_IMAGES } from './item-images';
 import { computeItemStatus } from './item-status';
 
 export const ITEM_NOT_FOUND = '찾는 용품이 없어요';
@@ -68,6 +69,10 @@ function serializeItem(item: ItemWithRecords) {
     maxAgeMonths: item.maxAgeMonths,
     condition: item.condition,
     memo: item.memo,
+    brand: item.brand,
+    modelName: item.modelName,
+    purchasedAt: fromDbDate(item.purchasedAt),
+    imageUrl: item.imageUrl,
     createdAt: item.createdAt,
     updatedAt: item.updatedAt,
     status: computeItemStatus(item.condition, item.rentals, item.sanitizations),
@@ -142,6 +147,21 @@ export class ItemsService {
     const memo = optionalText(body.memo);
     if (memo && memo.length > 200) errors.add('memo', '메모는 200자 이내로 적어 주세요.');
 
+    // 제품 정보는 모두 선택 입력입니다.
+    const brand = optionalText(body.brand);
+    if (brand && brand.length > 30) errors.add('brand', '브랜드는 30자 이내로 적어 주세요.');
+
+    const modelName = optionalText(body.modelName);
+    if (modelName && modelName.length > 40) errors.add('modelName', '모델명은 40자 이내로 적어 주세요.');
+
+    const purchasedAt = optionalText(body.purchasedAt);
+    if (purchasedAt && (!isValidDate(purchasedAt) || purchasedAt > todayInKorea())) {
+      errors.add('purchasedAt', '구매일은 오늘이나 그 이전 날짜로 골라 주세요.');
+    }
+
+    const imageUrl = optionalText(body.imageUrl);
+    if (imageUrl && !ITEM_IMAGES.includes(imageUrl)) errors.add('imageUrl', '대표 사진을 목록에서 골라 주세요.');
+
     const duplicateMessage = '이미 등록된 관리 번호예요. 다른 번호를 적어 주세요.';
     if (!errors.has('code') && (await this.prisma.item.findUnique({ where: { code } }))) {
       errors.add('code', duplicateMessage);
@@ -158,6 +178,10 @@ export class ItemsService {
           maxAgeMonths: maxAgeMonths!,
           condition: condition!,
           memo,
+          brand,
+          modelName,
+          purchasedAt: purchasedAt ? toDbDate(purchasedAt) : null,
+          imageUrl,
         },
       });
       return this.findOne(item.id);
